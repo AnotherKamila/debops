@@ -17,7 +17,7 @@
 #
 # List of base APT packages to install for LXC support.
 lxc__base_packages:
-  - [ 'lxc', 'lxcfs', 'debootstrap' ]
+  - [ 'lxc', 'lxcfs', 'debootstrap', 'xz-utils' ]
   - '{{ [ "dnsmasq-base", "resolvconf" ] if (lxc__net_deploy_state == "present") else [] }}'
 
                                                                    # ]]]
@@ -104,6 +104,15 @@ lxc__net_bridge: 'lxcbr0'
 lxc__net_address: '10.0.3.1/24'
 
                                                                    # ]]]
+# .. envvar:: lxc__net_router [[[
+#
+# Enable or disable router advertisement on the ``lxc-net`` bridge. You should
+# disable this if the primary network route of the LXC containers should go
+# through normal host bridges instead of the bridge managed by the ``lxc-net``
+# service.
+lxc__net_router: True
+
+                                                                   # ]]]
 # .. envvar:: lxc__net_dhcp_start [[[
 #
 # The index of the IP address from the above subnet that starts the DHCP range.
@@ -130,10 +139,16 @@ lxc__net_dhcp_end: '-2'
 # domain in the :file:`/etc/resolv.conf`; with local DNS resolver, for example
 # :command:`dnsmasq`, configured on the LXC host the containers can then be
 # accessed by their hostnames instead of the IP addresses.
-lxc__net_domain: 'lxc.{{ ansible_local.core.domain
-                         if (ansible_local|d() and ansible_local.core|d() and
-                             ansible_local.core.domain|d())
-                         else (ansible_domain if ansible_domain else ansible_hostname) }}'
+lxc__net_domain: '{{ ansible_local.lxc.net_domain
+                     if (ansible_local|d() and ansible_local.lxc|d() and
+                         ansible_local.lxc.net_domain|d())
+                     else ("lxc." + (ansible_local.core.domain
+                                     if (ansible_local|d() and
+                                         ansible_local.core|d() and
+                                         ansible_local.core.domain|d())
+                                     else (ansible_domain
+                                           if ansible_domain
+                                           else ansible_hostname))) }}'
 
                                                                    # ]]]
 # .. envvar:: lxc__net_interface_fqdn [[[
@@ -185,6 +200,12 @@ lxc__default_configuration:
           Default configuration file used for new LXC containers if not
           specified otherwise
         value: '/etc/lxc/privileged.conf'
+
+      - name: 'lxc.default_unprivileged_config'
+        comment: |
+          Default configuration file used for new unprivileged LXC containers,
+          created by the 'lxc-new-unprivileged' script
+        value: '/etc/lxc/internal-unprivileged.conf'
 
     # Default configuration for unprivileged LXC containers.
   - name: 'unprivileged'
