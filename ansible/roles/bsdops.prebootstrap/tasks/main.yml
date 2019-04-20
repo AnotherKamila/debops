@@ -1,0 +1,13 @@
+---
+- name: Install bash (many DebOps scripts rely on it)
+  package:
+    name: bash
+    state: present
+  become: yes
+
+- name: 'Symlink bash to /bin :-(  #lesserevil'
+  file:
+    src:  /usr/local/bin/bash
+    dest: /bin/bash
+    state: link
+  become: yes

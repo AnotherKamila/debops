@@ -1,0 +1,23 @@
+---
+
+dependencies: []
+
+galaxy_info:
+
+  role_name: 'prebootstrap'
+  company: 'BsdOps'
+  author: 'Kamila Součková'
+  description: 'Prepare a FreeBSD host for management with DebOps'
+  license: 'GPL-3.0'
+  min_ansible_version: '2.0.0'
+
+  platforms:
+
+    - name: FreeBSD
+      versions:
+        - 12
+
+  galaxy_tags:
+    - system
+    - bootstrapping
+    - bootstrap
